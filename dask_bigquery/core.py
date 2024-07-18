@@ -142,6 +142,7 @@ def read_gbq(
     read_kwargs: dict = None,
     arrow_options: dict = None,
     credentials: dict = None,
+    schema: pyarrow.Schema = None,
 ):
     """Read table as dask dataframe using BigQuery Storage API via Arrow format.
     Partitions will be approximately balanced according to BigQuery stream allocation logic.
@@ -201,7 +202,7 @@ def read_gbq(
         # Create a read session in order to detect the schema.
         # Read sessions are light weight and will be auto-deleted after 24 hours.
         session = bqs_client.create_read_session(make_create_read_session_request())
-        schema = pyarrow.ipc.read_schema(
+        schema = schema or pyarrow.ipc.read_schema(
             pyarrow.py_buffer(session.arrow_schema.serialized_schema)
         )
         meta = schema.empty_table().to_pandas(**arrow_options)
